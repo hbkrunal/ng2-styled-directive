@@ -3,7 +3,7 @@
  * @author Bogdan Shapoval (targus) <it.targus@gmail.com>
  */
 
-import {Directive, Input, ElementRef, ViewContainerRef} from '@angular/core';
+import {AfterViewInit, Directive, Input, ElementRef, ViewContainerRef} from '@angular/core';
 
 export interface IConfigItem {
     path?: string;
@@ -20,7 +20,7 @@ export interface ISkinable {
 @Directive({
     selector: '[styled]'
 })
-export class Ng2StyledDirective {
+export class Ng2StyledDirective implements AfterViewInit{
 
     @Input() stylePath: string = null;
     @Input() styleBlock: Array<string> | string = null;
@@ -33,7 +33,7 @@ export class Ng2StyledDirective {
     ngAfterViewInit() {
 
         // get component instance in case directive was applied to component
-        var component = (<any>this._view)._element.component;
+        let component = (<any>this._view).component;
 
         // check for skin settings method in parent component
         if (typeof(component) == 'object' && typeof(component.getStyledConfig) == 'function' && this.skin != 'none') {
@@ -50,7 +50,7 @@ export class Ng2StyledDirective {
             this.setStylePath(this.stylePath);
         }
 
-        var block = [];
+        let block = [];
         if (this.skin != 'none') {
             if (!this.skin || !this._config[this.skin]) this.skin = 'default';
             if (this._config[this.skin] && typeof(this._config[this.skin].block) != 'undefined' && this._config[this.skin].block) {
@@ -95,7 +95,7 @@ export class Ng2StyledDirective {
         }
         return false;
     }
-    
+
     setArrayStylesForElement(styles: Array<string>) {
         for (let style of styles) {
             this.setStyleForElement(style);
@@ -104,7 +104,7 @@ export class Ng2StyledDirective {
 
     setStyleForElement(styles: string | Array<string>) {
         // get styling encapsulation attribute
-        var idAttr = this.getIdentityAttribute();
+        let idAttr = this.getIdentityAttribute();
         // create own encapsulation attribute, if not exist
         if (!idAttr) {
             idAttr = '_styled-'+Math.random().toString(36).slice(2, 6);
@@ -112,8 +112,8 @@ export class Ng2StyledDirective {
         }
 
         // get or create <style id="styled-directive-block"> element
-        var styleElList = document.querySelectorAll('style#styled-directive-block');
-        var styleEl:any;
+        let styleElList = document.querySelectorAll('style#styled-directive-block');
+        let styleEl:any;
         if (!styleElList.length) {
             styleEl = document.createElement('style');
             styleEl.type = 'text/css';
@@ -123,8 +123,8 @@ export class Ng2StyledDirective {
         }
 
         // ctreating css style block for current element
-        var stylesArray = (typeof(styles) == 'string') ? [styles] : styles;
-        var styleString = '';
+        let stylesArray = (typeof(styles) == 'string') ? [styles] : styles;
+        let styleString = '';
         for (let style of stylesArray) {
             if (!style) continue;
             if (styleString!='') styleString += `  \n`;
@@ -135,16 +135,16 @@ export class Ng2StyledDirective {
             }
             styleString += `[${idAttr}]${style}`;
         }
-        
+
         // add style to <style> element
         if (styleString) styleEl.innerHTML += `  \n` + styleString;
-        var head  = document.getElementsByTagName('head')[0];
+        let head  = document.getElementsByTagName('head')[0];
         head.appendChild(styleEl);
     }
 
     setStylePath(stylePath: string) {
         // checking stylePath for existing
-        for(var i = 0; i < document.styleSheets.length; i++){
+        for(let i = 0; i < document.styleSheets.length; i++){
             if(document.styleSheets[i].href == stylePath){
                 return;
             }
@@ -153,11 +153,11 @@ export class Ng2StyledDirective {
         // fix
         if (document.querySelectorAll(`head link[href="${stylePath}"]`).length) return;
 
-        var link = document.createElement('link');
+        let link = document.createElement('link');
         link.type = 'text/css';
         link.rel = 'stylesheet';
         link.href = `${stylePath}`;
-        var head  = document.getElementsByTagName('head')[0];
+        let head  = document.getElementsByTagName('head')[0];
         head.appendChild(link);
     }
 }
